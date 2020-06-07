@@ -1,25 +1,3 @@
--- %include <vscode/console>
--- ColorTint = {r = 0, g = 0, b = 0}
--- ColorTint.__index = ColorTint
-
--- function ColorTint:create (r, g, b)
---     local output = {}
---     setmetatable(output, ColorTint)
---     r = r or 0
---     g = g or 0
---     b = b or 0
---     output.r = r
---     output.g = g
---     output.b = b
---     return output
--- end
-
--- function ColorTint:hasTintValues (r,g,b)
---     return (self.r = r and self.g = g and self.b = b)
--- end
-
-
-
 function tapHoveredItem(playerColor)
     local untappedY = 180
     local tappedY = 270
@@ -111,9 +89,6 @@ function onObjectDrop(player_color, obj)
   if obj.tag == 'Card' then
     if (obj.getColorTint():colorTintMatches(monsterActiveArea1Tint)) then
         getObjectFromGUID('14bbc5').setRotationValue(obj.getDescription())
-    -- if monsterActiveArea1Tint:hasColorTint(
-    --     unpack(obj.getColorTint())) then
-    --         getObjectFromGUID('14bbc5').setRotationValue(obj.getDescription())
     elseif (obj.getColorTint():colorTintMatches(monsterActiveArea2Tint)) then
         getObjectFromGUID('61243a').setRotationValue(obj.getDescription())
     elseif (obj.getColorTint():colorTintMatches(monsterActiveArea3Tint)) then
