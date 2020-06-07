@@ -1,7 +1,55 @@
-ColorTint = {r = 0, g = 0, b = 0}
-ColorTint.__index = ColorTint
+-- %include <vscode/console>
+-- ColorTint = {r = 0, g = 0, b = 0}
+-- ColorTint.__index = ColorTint
 
-function ColorTint:create (r, g, b)
+-- function ColorTint:create (r, g, b)
+--     local output = {}
+--     setmetatable(output, ColorTint)
+--     r = r or 0
+--     g = g or 0
+--     b = b or 0
+--     output.r = r
+--     output.g = g
+--     output.b = b
+--     return output
+-- end
+
+-- function ColorTint:hasTintValues (r,g,b)
+--     return (self.r = r and self.g = g and self.b = b)
+-- end
+
+
+
+function tapHoveredItem(playerColor)
+    local untappedY = 180
+    local tappedY = 270
+    local hoveredObject = Player[playerColor].getHoverObject()
+    
+    if (hoveredObject == nil) then 
+        return 
+    end
+
+    local hoveredObjectRotation = hoveredObject.getRotation()
+    local newYRotation = tappedY
+
+    if (round(hoveredObjectRotation["y"]) == tappedY) then 
+        newYRotation = untappedY
+    end
+
+    hoveredObject.setRotationSmooth(
+        Vector(
+            hoveredObjectRotation["x"],
+            newYRotation,
+            hoveredObjectRotation["z"]
+        ),
+        false,
+        true
+    )
+    
+    return
+end
+
+function Color:create (r, g, b)
     local output = {}
     setmetatable(output, ColorTint)
     r = r or 0
@@ -13,27 +61,20 @@ function ColorTint:create (r, g, b)
     return output
 end
 
-function ColorTint:matchesTintValues(r, g, b)
-    return (self.r == r and self.g == g and self.b == b)
+function Color:colorTintMatches(color)
+    return (self.r == color.r and self.g == color.g and self.b == color.b)
 end
 
-function ColorTint:toTable()
-    return {self.r, self.g, self.b}
-end
-
-function Color:toTable()
-    return {self.r, self.g, self.b}
-end
-
-monsterActiveArea1Tint = ColorTint:create(1,0,0)
-monsterActiveArea2Tint = ColorTint:create(0,1,0)
-monsterActiveArea3Tint = ColorTint:create(0,0,1)
-monsterActiveArea4Tint = ColorTint:create(1,1,0)
-monsterActiveArea5Tint = ColorTint:create(1,0,1)
-monsterDiscardAreaTint = ColorTint:create(0,0,0)
+monsterActiveArea1Tint = Color:create(1,0,0)
+monsterActiveArea2Tint = Color:create(0,1,0)
+monsterActiveArea3Tint = Color:create(0,0,1)
+monsterActiveArea4Tint = Color:create(1,1,0)
+monsterActiveArea5Tint = Color:create(1,0,1)
+monsterDiscardAreaTint = Color:create(0,0,0)
 
 function onLoad()
   deckShuffle()
+  addHotkey("Tap", tapHoveredItem, false)
 end
 
 function deckShuffle()
@@ -50,17 +91,17 @@ end
 function onObjectEnterScriptingZone(zone, obj)
     if obj.tag == 'Card' then
         if zone == getObjectFromGUID('76e161') then
-            obj.setColorTint(monsterActiveArea1Tint:toTable())
+            obj.setColorTint(monsterActiveArea1Tint)
         elseif zone == getObjectFromGUID('c08993') then
-            obj.setColorTint(monsterActiveArea2Tint:toTable())
+            obj.setColorTint(monsterActiveArea2Tint)
         elseif zone == getObjectFromGUID('7b3e89') then
-            obj.setColorTint(monsterActiveArea3Tint:toTable())
+            obj.setColorTint(monsterActiveArea3Tint)
         elseif zone == getObjectFromGUID('367391') then
-            obj.setColorTint(monsterActiveArea4Tint:toTable())
+            obj.setColorTint(monsterActiveArea4Tint)
         elseif zone == getObjectFromGUID('d05d61') then
-            obj.setColorTint(monsterActiveArea5Tint:toTable())
+            obj.setColorTint(monsterActiveArea5Tint)
         elseif zone == getObjectFromGUID('e2f8e9') then
-            obj.setColorTint(monsterDiscardAreaTint:toTable())
+            obj.setColorTint(monsterDiscardAreaTint)
         end
     end
 end
@@ -68,58 +109,24 @@ end
 
 function onObjectDrop(player_color, obj)
   if obj.tag == 'Card' then
-    local exampleTable = {1,2,3}
-    print('unpacked example table: ', unpack(exampleTable))
-    print('unpacked colour tint: ',unpack(obj.getColorTint()))
-    print('unpacked colour tint as table: ',unpack(obj.getColorTint():toTable()))
-
-    if monsterActiveArea1Tint:matchesTintValues(
-        unpack(obj.getColorTint():toTable())) then
-            getObjectFromGUID('14bbc5').setRotationValue(obj.getDescription())
-    elseif  monsterActiveArea2Tint:matchesTintValues(
-        unpack(obj.getColorTint():toTable())) then
-            getObjectFromGUID('61243a').setRotationValue(obj.getDescription())
-    elseif  monsterActiveArea3Tint:matchesTintValues(
-        unpack(obj.getColorTint():toTable())) then
-            getObjectFromGUID('6dcaad').setRotationValue(obj.getDescription())
-    elseif  monsterActiveArea4Tint:matchesTintValues(
-        unpack(obj.getColorTint():toTable())) then
-            getObjectFromGUID('65d0d1').setRotationValue(obj.getDescription())
-    elseif  monsterActiveArea5Tint:matchesTintValues(
-        unpack(obj.getColorTint():toTable())) then
-            getObjectFromGUID('222d59').setRotationValue(obj.getDescription())
+    if (obj.getColorTint():colorTintMatches(monsterActiveArea1Tint)) then
+        getObjectFromGUID('14bbc5').setRotationValue(obj.getDescription())
+    -- if monsterActiveArea1Tint:hasColorTint(
+    --     unpack(obj.getColorTint())) then
+    --         getObjectFromGUID('14bbc5').setRotationValue(obj.getDescription())
+    elseif (obj.getColorTint():colorTintMatches(monsterActiveArea2Tint)) then
+        getObjectFromGUID('61243a').setRotationValue(obj.getDescription())
+    elseif (obj.getColorTint():colorTintMatches(monsterActiveArea3Tint)) then
+        getObjectFromGUID('6dcaad').setRotationValue(obj.getDescription())
+    elseif (obj.getColorTint():colorTintMatches(monsterActiveArea4Tint)) then
+        getObjectFromGUID('65d0d1').setRotationValue(obj.getDescription())
+    elseif (obj.getColorTint():colorTintMatches(monsterActiveArea5Tint)) then
+        getObjectFromGUID('222d59').setRotationValue(obj.getDescription())
     end
   end
-
 end
 
-function are_table_values_equivalent(o1, o2, ignore_mt)
-    if o1 == o2 then return true end
-    local o1Type = type(o1)
-    local o2Type = type(o2)
-    if o1Type ~= o2Type then return false end
-    if o1Type ~= 'table' then return false end
-
-    if not ignore_mt then
-        local mt1 = getmetatable(o1)
-        if mt1 and mt1.__eq then
-            --compare using built in method
-            return o1 == o2
-        end
-    end
-
-    local keySet = {}
-
-    for key1, value1 in pairs(o1) do
-        local value2 = o2[key1]
-        if value2 == nil or equals(value1, value2, ignore_mt) == false then
-            return false
-        end
-        keySet[key1] = true
-    end
-
-    for key2, _ in pairs(o2) do
-        if not keySet[key2] then return false end
-    end
-    return true
+function round(num, numDecimalPlaces)
+    local mult = 10^(numDecimalPlaces or 0)
+    return math.floor(num * mult + 0.5) / mult
 end

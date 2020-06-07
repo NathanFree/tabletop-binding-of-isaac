@@ -1,0 +1,29 @@
+function onDropped(playerColor)
+    startLuaCoroutine(self, 'NodeDiceCoroutine')
+end
+
+function onObjectRandomize(obj, playerColor)
+    if obj == self then
+        playerRoller = Player[playerColor]
+        startLuaCoroutine(self, 'NodeDiceCoroutine')
+    end
+end
+
+local rolling = false
+function NodeDiceCoroutine()
+    if rolling then
+        return 1
+    else
+        rolling = true
+    end
+
+    repeat
+        coroutine.yield(0)
+    until (self.held_by_color == nil) and self.resting
+
+    local value = self.getValue()
+    broadcastToAll(playerRoller.steam_name .. " rolled " .. value, stringColorToRGB(playerRoller.color))
+
+    rolling = false
+    return 1
+end

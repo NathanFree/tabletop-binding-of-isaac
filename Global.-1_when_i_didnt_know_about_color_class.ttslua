@@ -1,0 +1,125 @@
+ColorTint = {r = 0, g = 0, b = 0}
+ColorTint.__index = ColorTint
+
+function ColorTint:create (r, g, b)
+    local output = {}
+    setmetatable(output, ColorTint)
+    r = r or 0
+    g = g or 0
+    b = b or 0
+    output.r = r
+    output.g = g
+    output.b = b
+    return output
+end
+
+function ColorTint:matchesTintValues(r, g, b)
+    return (self.r == r and self.g == g and self.b == b)
+end
+
+function ColorTint:toTable()
+    return {self.r, self.g, self.b}
+end
+
+function Color:toTable()
+    return {self.r, self.g, self.b}
+end
+
+monsterActiveArea1Tint = ColorTint:create(1,0,0)
+monsterActiveArea2Tint = ColorTint:create(0,1,0)
+monsterActiveArea3Tint = ColorTint:create(0,0,1)
+monsterActiveArea4Tint = ColorTint:create(1,1,0)
+monsterActiveArea5Tint = ColorTint:create(1,0,1)
+monsterDiscardAreaTint = ColorTint:create(0,0,0)
+
+function onLoad()
+  deckShuffle()
+end
+
+function deckShuffle()
+  local decksToShuffle = {'cefd12', '4a4634', 'df5dee', '72a38f'}
+  for i = 1, #decksToShuffle, 1 do
+    obj = getObjectFromGUID(decksToShuffle[i])
+    if obj ~= nil then
+      obj.shuffle()
+    end
+  end
+  broadcastToAll("All decks were shuffled", {1,1,1})
+end
+
+function onObjectEnterScriptingZone(zone, obj)
+    if obj.tag == 'Card' then
+        if zone == getObjectFromGUID('76e161') then
+            obj.setColorTint(monsterActiveArea1Tint:toTable())
+        elseif zone == getObjectFromGUID('c08993') then
+            obj.setColorTint(monsterActiveArea2Tint:toTable())
+        elseif zone == getObjectFromGUID('7b3e89') then
+            obj.setColorTint(monsterActiveArea3Tint:toTable())
+        elseif zone == getObjectFromGUID('367391') then
+            obj.setColorTint(monsterActiveArea4Tint:toTable())
+        elseif zone == getObjectFromGUID('d05d61') then
+            obj.setColorTint(monsterActiveArea5Tint:toTable())
+        elseif zone == getObjectFromGUID('e2f8e9') then
+            obj.setColorTint(monsterDiscardAreaTint:toTable())
+        end
+    end
+end
+
+
+function onObjectDrop(player_color, obj)
+  if obj.tag == 'Card' then
+    local exampleTable = {1,2,3}
+    print('unpacked example table: ', unpack(exampleTable))
+    print('unpacked colour tint: ',unpack(obj.getColorTint()))
+    print('unpacked colour tint as table: ',unpack(obj.getColorTint():toTable()))
+
+    if monsterActiveArea1Tint:matchesTintValues(
+        unpack(obj.getColorTint():toTable())) then
+            getObjectFromGUID('14bbc5').setRotationValue(obj.getDescription())
+    elseif  monsterActiveArea2Tint:matchesTintValues(
+        unpack(obj.getColorTint():toTable())) then
+            getObjectFromGUID('61243a').setRotationValue(obj.getDescription())
+    elseif  monsterActiveArea3Tint:matchesTintValues(
+        unpack(obj.getColorTint():toTable())) then
+            getObjectFromGUID('6dcaad').setRotationValue(obj.getDescription())
+    elseif  monsterActiveArea4Tint:matchesTintValues(
+        unpack(obj.getColorTint():toTable())) then
+            getObjectFromGUID('65d0d1').setRotationValue(obj.getDescription())
+    elseif  monsterActiveArea5Tint:matchesTintValues(
+        unpack(obj.getColorTint():toTable())) then
+            getObjectFromGUID('222d59').setRotationValue(obj.getDescription())
+    end
+  end
+
+end
+
+function are_table_values_equivalent(o1, o2, ignore_mt)
+    if o1 == o2 then return true end
+    local o1Type = type(o1)
+    local o2Type = type(o2)
+    if o1Type ~= o2Type then return false end
+    if o1Type ~= 'table' then return false end
+
+    if not ignore_mt then
+        local mt1 = getmetatable(o1)
+        if mt1 and mt1.__eq then
+            --compare using built in method
+            return o1 == o2
+        end
+    end
+
+    local keySet = {}
+
+    for key1, value1 in pairs(o1) do
+        local value2 = o2[key1]
+        if value2 == nil or equals(value1, value2, ignore_mt) == false then
+            return false
+        end
+        keySet[key1] = true
+    end
+
+    for key2, _ in pairs(o2) do
+        if not keySet[key2] then return false end
+    end
+    return true
+end

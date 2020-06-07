@@ -1,0 +1,159 @@
+function onload(saved_data)
+    self.createInput({
+        function_owner=self, 
+        label="¢ Amount",
+        input_function="setAmountToGiveToPlayer",
+        position={0.8,0.1,-0.4},
+        height=140, 
+        width=700, 
+        font_size=100,
+        font_color={1,1,1},
+        color={0.3,0.3,0.3},
+        validation=2,
+        alignment=3
+    })
+    self.createButton({
+        function_owner=self, 
+        label="Get ¢",
+        click_function="giveMoneyToPlayer",
+        position={0.8,0.1,0.5},
+        height=300, 
+        width=700, 
+        font_size=100,
+        font_color={1,1,1},
+        color={0.3,0.3,0.3}
+    })
+end
+
+do
+    local amountToGiveToPlayer = 0
+    
+    function setAmountToGiveToPlayer(objectInputAttachedTo, playerColor, newAmountToGiveToPlayerString, isValueStillBeingEdited)
+        local newAmountToGiveToPlayer = 
+            tonumber(newAmountToGiveToPlayerString)
+        if (
+            newAmountToGiveToPlayer == nil
+            or newAmountToGiveToPlayer < 1
+        ) then
+            amountToGiveToPlayer = 0
+            return
+        end
+        amountToGiveToPlayer = newAmountToGiveToPlayer
+    end
+
+    --TODO: i don't want to have to clone a coin in the scene if i don't have to, but i can't get the mesh to load with spawnObject+setCustomObject+reload
+        -- strangely, the normal and bump seem to load in just fine
+    function giveMoneyToPlayer(playerColor)
+        print("player color: ",playerColor)
+        print("giving money to player")
+
+        -- local coinBag = getObjectFromGUID('a83897')
+        -- if (coinBag == nil) then
+        --     print('could not give coin - no coinbag')
+        --     return;
+        -- end
+
+        -- local firstCoinInBag = coinBag.getObjects()[1][1]
+        -- if (firstCoinInBag == nil) then
+        --     print('could not give coin - no coins to give')
+        --     return;
+        -- end;
+
+        -- -- print(self.getPosition()["y"])
+        -- firstCoinInBag.clone()
+
+        -- newCentParams = {
+        --     type = "Custom_Model",
+        --     scale = {0.375,0.375,0.375},
+        --     position = self.getPosition(),
+        --     snap_to_grid = true,
+        -- }
+
+        -- local newCent = spawnObject(newCentParams)
+        -- customizeCustomObjectAsCent(newCent)
+
+        local exampleCentJSON = [[{
+            "Name": "Custom_Model",
+            "Transform": {
+              "posX": -11.9854641,
+              "posY": 1.481499,
+              "posZ": -9.810064,
+              "rotX": 1.13608492E-08,
+              "rotY": 180.001,
+              "rotZ": -1.47935737E-07,
+              "scaleX": 0.375,
+              "scaleY": 0.375,
+              "scaleZ": 0.375
+            },
+            "Nickname": "",
+            "Description": "",
+            "GMNotes": "",
+            "ColorDiffuse": {
+              "r": 0.9999998,
+              "g": 0.9921704,
+              "b": 0.9999998
+            },
+            "Locked": false,
+            "Grid": true,
+            "Snap": true,
+            "IgnoreFoW": false,
+            "MeasureMovement": false,
+            "DragSelectable": true,
+            "Autoraise": true,
+            "Sticky": true,
+            "Tooltip": true,
+            "GridProjection": false,
+            "HideWhenFaceDown": false,
+            "Hands": false,
+            "CustomMesh": {
+              "MeshURL": "http://cloud-3.steamusercontent.com/ugc/960843785608080002/737A1C71278760AE19AC02E85041283B753DCF1C/",
+              "DiffuseURL": "http://cloud-3.steamusercontent.com/ugc/960843785608064310/729799D975BFDA0B0DF79791B4A563AEE7382DF6/",
+              "NormalURL": "http://cloud-3.steamusercontent.com/ugc/960843785608089595/801296A67070F81502E6B4E5762F9C48969B611F/",
+              "ColliderURL": "",
+              "Convex": true,
+              "MaterialIndex": 1,
+              "TypeIndex": 5,
+              "CastShadows": true
+            },
+            "LuaScript": "",
+            "LuaScriptState": "",
+            "XmlUI": "",
+            "PhysicsMaterial": {
+              "StaticFriction": 0.4,
+              "DynamicFriction": 0.4,
+              "Bounciness": 0.0,
+              "FrictionCombine": 0,
+              "BounceCombine": 0
+            },
+            "Rigidbody": {
+              "Mass": 1.05,
+              "Drag": 0.1,
+              "AngularDrag": 0.1,
+              "UseGravity": true
+            }
+          }]]
+    
+        spawnObjectJSON({
+            json=exampleCentJSON,
+            position=self.getPosition()
+        })
+
+        amountToGiveToPlayer = 0
+    end
+    
+    function customizeCustomObjectAsCent(cent)
+        cent.setCustomObject({
+            type=5,
+            mesh="http://cloud-3.steamusercontent.com/ugc/960843785608080002/737A1C71278760AE19AC02E85041283B753DCF1C/",
+            diffuse="http://cloud-3.steamusercontent.com/ugc/960843785608064310/729799D975BFDA0B0DF79791B4A563AEE7382DF6/",
+            normal="http://cloud-3.steamusercontent.com/ugc/960843785608089595/801296A67070F81502E6B4E5762F9C48969B611F/",
+            material=1,
+            specular_intensity=0.05,
+            specular_color={r=224,g=208,b=191},
+            specular_sharpness=4.00,
+            freshnel_strength=0.11,
+            cast_shadows=true
+        })
+        cent.reload()
+    end
+end
