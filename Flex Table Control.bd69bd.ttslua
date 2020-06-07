@@ -73,7 +73,6 @@ end
 --Table surface control
 
 
-
 --Changes table surface
 function click_applySurface(_, color)
     if permissionCheck(color) then

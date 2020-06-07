@@ -1,0 +1,13 @@
+function onload(saved_data)
+    self.createButton({
+        function_owner=self, 
+        label="Buy",
+        click_function="sellItemToPlayer",
+        position={0,0.1,0},
+        height=1000, 
+        width=1740, 
+        font_size=600,
+        font_color={1,1,1},
+        color={0.3,0.3,0.3}
+    })
+end
